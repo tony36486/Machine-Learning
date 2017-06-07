@@ -8,8 +8,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import os
 from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
 from tensorflow.python.framework import ops
+#Reset graph
 ops.reset_default_graph()
 
 # Start a graph session
@@ -159,6 +161,7 @@ for i in range(generations):
 # Matlotlib code to plot the loss and accuracies
 eval_indices = range(0, generations, eval_every)
 # Plot loss over time
+plt.figure()
 plt.plot(eval_indices, train_loss, 'k-')
 plt.title('Softmax Loss per Generation')
 plt.xlabel('Generation')
@@ -166,6 +169,7 @@ plt.ylabel('Softmax Loss')
 plt.show()
 
 # Plot train and test accuracy
+plt.figure()
 plt.plot(eval_indices, train_acc, 'k-', label='Train Set Accuracy')
 plt.plot(eval_indices, test_acc, 'r--', label='Test Set Accuracy')
 plt.title('Train and Test Accuracy')
@@ -175,6 +179,7 @@ plt.legend(loc='lower right')
 plt.show()
 
 # Plot some samples
+plt.figure()
 # Plot the 6 of the last batch results:
 actuals = rand_y[0:6]
 predictions = np.argmax(temp_train_preds,axis=1)[0:6]
@@ -190,3 +195,11 @@ for i in range(6):
     frame = plt.gca()
     frame.axes.get_xaxis().set_visible(False)
     frame.axes.get_yaxis().set_visible(False)
+
+# Add summaries to tensorboard    
+merged = tf.summary.merge_all(key='summaries')
+#check floder 
+if not os.path.exists("H:\\my_TFpath\\tensorflowlogs"):
+    os.makedirs("H:\\my_TFpath\\tensorflowlogs")
+# Initialize graph writer:
+my_writer = tf.summary.FileWriter("H:\\my_TFpath\\tensorflowlogs", sess.graph)

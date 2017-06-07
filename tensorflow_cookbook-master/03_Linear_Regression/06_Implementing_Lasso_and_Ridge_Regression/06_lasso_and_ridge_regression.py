@@ -18,7 +18,7 @@ from tensorflow.python.framework import ops
 
 
 # Specify 'Ridge' or 'LASSO'
-regression_type = 'LASSO'
+regression_type = 'Ridge'
 
 # clear out old graph
 ops.reset_default_graph()
@@ -133,6 +133,7 @@ for i in x_vals:
 ###
 
 # Plot regression line against data points
+plt.figure()
 plt.plot(x_vals, y_vals, 'o', label='Data Points')
 plt.plot(x_vals, best_fit, 'r-', label='Best fit line', linewidth=3)
 plt.legend(loc='upper left')
@@ -142,6 +143,7 @@ plt.ylabel('Sepal Length')
 plt.show()
 
 # Plot loss over time
+plt.figure()
 plt.plot(loss_vec, 'k-')
 plt.title(regression_type + ' Loss per Generation')
 plt.xlabel('Generation')

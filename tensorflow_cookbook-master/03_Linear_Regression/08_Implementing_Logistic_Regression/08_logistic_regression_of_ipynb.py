@@ -42,6 +42,7 @@ if not os.path.exists(birth_weight_file):
     birth_data = birth_file.text.split('\r\n')
     birth_header = birth_data[0].split('\t')
     birth_data = [[float(x) for x in y.split('\t') if len(x)>=1] for y in birth_data[1:] if len(y)>=1]
+    """
     with open(birth_weight_file, "w") as f:
         writer = csv.writer(f)
         writer.writerows(birth_data)
@@ -54,14 +55,14 @@ with open(birth_weight_file, newline='') as csvfile:
      birth_header = next(csv_reader)
      for row in csv_reader:
          birth_data.append(row)
-
+         """
 
 birth_data = [[float(x) for x in row] for row in birth_data]
 
 # Pull out target variable
-y_vals = np.array([x[1] for x in birth_data])
+y_vals = np.array([x[0] for x in birth_data])
 # Pull out predictor variables (not id, not target, and not birthweight)
-x_vals = np.array([x[2:9] for x in birth_data])
+x_vals = np.array([x[1:9] for x in birth_data])
 
 # set for reproducible results
 seed = 99
@@ -93,11 +94,11 @@ x_vals_test = np.nan_to_num(normalize_cols(x_vals_test))
 batch_size = 25
 
 # Initialize placeholders
-x_data = tf.placeholder(shape=[None, 7], dtype=tf.float32)
+x_data = tf.placeholder(shape=[None, 8], dtype=tf.float32)
 y_target = tf.placeholder(shape=[None, 1], dtype=tf.float32)
 
 # Create variables for linear regression
-A = tf.Variable(tf.random_normal(shape=[7,1]))
+A = tf.Variable(tf.random_normal(shape=[8,1]))
 b = tf.Variable(tf.random_normal(shape=[1,1]))
 
 # Declare model operations
