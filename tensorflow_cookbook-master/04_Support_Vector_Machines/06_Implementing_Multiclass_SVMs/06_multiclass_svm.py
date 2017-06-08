@@ -54,7 +54,7 @@ prediction_grid = tf.placeholder(shape=[None, 2], dtype=tf.float32)
 b = tf.Variable(tf.random_normal(shape=[3,batch_size]))
 
 # Gaussian (RBF) kernel
-gamma = tf.constant(-10.0)
+gamma = tf.constant(-100.0)
 dist = tf.reduce_sum(tf.square(x_data), 1)
 dist = tf.reshape(dist, [-1,1])
 sq_dists = tf.multiply(2., tf.matmul(x_data, tf.transpose(x_data)))
@@ -125,6 +125,7 @@ grid_predictions = sess.run(prediction, feed_dict={x_data: rand_x,
 grid_predictions = grid_predictions.reshape(xx.shape)
 
 # Plot points and grid
+plt.figure()
 plt.contourf(xx, yy, grid_predictions, cmap=plt.cm.Paired, alpha=0.8)
 plt.plot(class1_x, class1_y, 'ro', label='I. setosa')
 plt.plot(class2_x, class2_y, 'kx', label='I. versicolor')
@@ -138,6 +139,7 @@ plt.xlim([3.5, 8.5])
 plt.show()
 
 # Plot batch accuracy
+plt.figure()
 plt.plot(batch_accuracy, 'k-', label='Accuracy')
 plt.title('Batch Accuracy')
 plt.xlabel('Generation')
@@ -146,6 +148,7 @@ plt.legend(loc='lower right')
 plt.show()
 
 # Plot loss over time
+plt.figure()
 plt.plot(loss_vec, 'k-')
 plt.title('Loss per Generation')
 plt.xlabel('Generation')

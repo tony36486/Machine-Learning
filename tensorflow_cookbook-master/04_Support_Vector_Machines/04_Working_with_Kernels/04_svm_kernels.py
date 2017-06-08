@@ -41,14 +41,14 @@ b = tf.Variable(tf.random_normal(shape=[1,batch_size]))
 
 # Apply kernel
 # Linear Kernel
-# my_kernel = tf.matmul(x_data, tf.transpose(x_data))
+my_kernel = tf.matmul(x_data, tf.transpose(x_data))
 
 # Gaussian (RBF) kernel
-gamma = tf.constant(-50.0)
-dist = tf.reduce_sum(tf.square(x_data), 1)
-dist = tf.reshape(dist, [-1,1])
-sq_dists = tf.add(tf.subtract(dist, tf.multiply(2., tf.matmul(x_data, tf.transpose(x_data)))), tf.transpose(dist))
-my_kernel = tf.exp(tf.multiply(gamma, tf.abs(sq_dists)))
+#gamma = tf.constant(-50.0)
+#dist = tf.reduce_sum(tf.square(x_data), 1)
+#dist = tf.reshape(dist, [-1,1])
+#sq_dists = tf.add(tf.subtract(dist, tf.multiply(2., tf.matmul(x_data, tf.transpose(x_data)))), tf.transpose(dist))
+#my_kernel = tf.exp(tf.multiply(gamma, tf.abs(sq_dists)))
 
 # Compute SVM Model
 first_term = tf.reduce_sum(b)
@@ -59,15 +59,19 @@ loss = tf.negative(tf.subtract(first_term, second_term))
 
 # Create Prediction Kernel
 # Linear prediction kernel
-# my_kernel = tf.matmul(x_data, tf.transpose(prediction_grid))
+my_kernel = tf.matmul(x_data, tf.transpose(prediction_grid))
 
 # Gaussian (RBF) prediction kernel
-rA = tf.reshape(tf.reduce_sum(tf.square(x_data), 1),[-1,1])
-rB = tf.reshape(tf.reduce_sum(tf.square(prediction_grid), 1),[-1,1])
-pred_sq_dist = tf.add(tf.subtract(rA, tf.multiply(2., tf.matmul(x_data, tf.transpose(prediction_grid)))), tf.transpose(rB))
-pred_kernel = tf.exp(tf.multiply(gamma, tf.abs(pred_sq_dist)))
+#rA = tf.reshape(tf.reduce_sum(tf.square(x_data), 1),[-1,1])
+#rB = tf.reshape(tf.reduce_sum(tf.square(prediction_grid), 1),[-1,1])
+#pred_sq_dist = tf.add(tf.subtract(rA, tf.multiply(2., tf.matmul(x_data, tf.transpose(prediction_grid)))), tf.transpose(rB))
+#pred_kernel = tf.exp(tf.multiply(gamma, tf.abs(pred_sq_dist)))
 
-prediction_output = tf.matmul(tf.multiply(tf.transpose(y_target),b), pred_kernel)
+# Gaussian (RBF) prediction kernel
+#prediction_output = tf.matmul(tf.multiply(tf.transpose(y_target),b), pred_kernel)
+
+# Linear prediction kernel
+prediction_output = tf.matmul(tf.multiply(tf.transpose(y_target),b), my_kernel)
 prediction = tf.sign(prediction_output-tf.reduce_mean(prediction_output))
 accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.squeeze(prediction), tf.squeeze(y_target)), tf.float32))
 
@@ -112,6 +116,7 @@ grid_points = np.c_[xx.ravel(), yy.ravel()]
 grid_predictions = grid_predictions.reshape(xx.shape)
 
 # Plot points and grid
+plt.figure()
 plt.contourf(xx, yy, grid_predictions, cmap=plt.cm.Paired, alpha=0.8)
 plt.plot(class1_x, class1_y, 'ro', label='Class 1')
 plt.plot(class2_x, class2_y, 'kx', label='Class -1')
@@ -124,6 +129,7 @@ plt.xlim([-1.5, 1.5])
 plt.show()
 
 # Plot batch accuracy
+plt.figure()
 plt.plot(batch_accuracy, 'k-', label='Accuracy')
 plt.title('Batch Accuracy')
 plt.xlabel('Generation')
@@ -132,6 +138,7 @@ plt.legend(loc='lower right')
 plt.show()
 
 # Plot loss over time
+plt.figure()
 plt.plot(loss_vec, 'k-')
 plt.title('Loss per Generation')
 plt.xlabel('Generation')

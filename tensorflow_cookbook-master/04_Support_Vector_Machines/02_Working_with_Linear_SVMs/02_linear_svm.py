@@ -129,6 +129,7 @@ not_setosa_x = [d[1] for i, d in enumerate(x_vals) if y_vals[i] == -1]
 not_setosa_y = [d[0] for i, d in enumerate(x_vals) if y_vals[i] == -1]
 
 # Plot data and line
+plt.figure()
 plt.plot(setosa_x, setosa_y, 'o', label='I. setosa')
 plt.plot(not_setosa_x, not_setosa_y, 'x', label='Non-setosa')
 plt.plot(x1_vals, best_fit, 'r-', label='Linear Separator', linewidth=3)
@@ -140,6 +141,7 @@ plt.ylabel('Sepal Length')
 plt.show()
 
 # Plot train/test accuracies
+plt.figure()
 plt.plot(train_accuracy, 'k-', label='Training Accuracy')
 plt.plot(test_accuracy, 'r--', label='Test Accuracy')
 plt.title('Train and Test Set Accuracies')
@@ -149,6 +151,7 @@ plt.legend(loc='lower right')
 plt.show()
 
 # Plot loss over time
+plt.figure()
 plt.plot(loss_vec, 'k-')
 plt.title('Loss per Generation')
 plt.xlabel('Generation')

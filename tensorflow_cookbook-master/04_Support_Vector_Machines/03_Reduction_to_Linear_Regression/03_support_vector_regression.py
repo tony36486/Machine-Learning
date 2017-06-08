@@ -99,6 +99,7 @@ for i in x_vals:
   best_fit_lower.append(slope*i+y_intercept-width)
 
 # Plot fit with data
+plt.figure()
 plt.plot(x_vals, y_vals, 'o', label='Data Points')
 plt.plot(x_vals, best_fit, 'r-', label='SVM Regression Line', linewidth=3)
 plt.plot(x_vals, best_fit_upper, 'r--', linewidth=2)
@@ -111,6 +112,7 @@ plt.ylabel('Sepal Length')
 plt.show()
 
 # Plot loss over time
+plt.figure()
 plt.plot(train_loss, 'k-', label='Train Set Loss')
 plt.plot(test_loss, 'r--', label='Test Set Loss')
 plt.title('L2 Loss per Generation')
