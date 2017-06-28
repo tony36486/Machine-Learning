@@ -67,6 +67,7 @@ for i in range(500):
         print('sigmoid = ' + str(np.mean(sigmoid_output)) + ' relu = ' + str(np.mean(relu_output)))
         
 # Plot the loss
+plt.figure()
 plt.plot(loss_vec_sigmoid, 'k-', label='Sigmoid Activation')
 plt.plot(loss_vec_relu, 'r--', label='Relu Activation')
 plt.ylim([0, 1.0])

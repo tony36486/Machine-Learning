@@ -8,7 +8,6 @@
 #
 #Columns    Variable                                              Abbreviation
 #-----------------------------------------------------------------------------
-# Identification Code                                     ID
 # Low Birth Weight (0 = Birth Weight >= 2500g,            LOW
 #                          1 = Birth Weight < 2500g)
 # Age of the Mother in Years                              AGE
@@ -18,8 +17,6 @@
 # History of Premature Labor (0 = None  1 = One, etc.)    PTL
 # History of Hypertension (1 = Yes, 0 = No)               HT
 # Presence of Uterine Irritability (1 = Yes, 0 = No)      UI
-# Number of Physician Visits During the First Trimester   FTV
-#                (0 = None, 1 = One, 2 = Two, etc.)
 # Birth Weight in Grams                                   BWT
 #------------------------------
 # The multiple neural network layer we will create will be composed of
@@ -40,33 +37,34 @@ birth_weight_file = 'birth_weight.csv'
 
 # download data and create data file if file does not exist in current directory
 if not os.path.exists(birth_weight_file):
-    birthdata_url = 'https://www.umass.edu/statdata/statdata/data/lowbwt.dat'
+    birthdata_url = 'https://github.com/nfmcclure/tensorflow_cookbook/raw/master/01_Introduction/07_Working_with_Data_Sources/birthweight_data/birthweight.dat'
     birth_file = requests.get(birthdata_url)
-    birth_data = birth_file.text.split('\r\n')[5:]
-    #birth_header = [x for x in birth_data[0].split(' ') if len(x)>=1]
-    birth_data = [lr for lr in [row.split() for row in birth_data] if len(lr) > 1]
+    birth_data = birth_file.text.split('\r\n')
+    birth_header = birth_data[0].split('\t')
+    birth_data = [[float(x) for x in y.split('\t') if len(x)>=1] for y in birth_data[1:] if len(y)>=1]
+"""
     with open(birth_weight_file, "w") as f:
         writer = csv.writer(f)
+        writer.writerows([birth_header])
         writer.writerows(birth_data)
         f.close()
-
 
 # read birth weight data into memory
 birth_data = []
 with open(birth_weight_file, newline='') as csvfile:
-     csv_reader = csv.reader(csvfile)
-     birth_header = next(csv_reader)
-     for row in csv_reader:
-         birth_data.append(row)
-
+    csv_reader = csv.reader(csvfile)
+    birth_header = next(csv_reader)
+    for row in csv_reader:
+        birth_data.append(row)
+"""
 birth_data = [[float(x) for x in row] for row in birth_data]
 
 
 # Extract y-target (birth weight)
-y_vals = np.array([x[10] for x in birth_data])
+y_vals = np.array([x[8] for x in birth_data])
 
 # Filter for features of interest
-cols_of_interest = ['AGE', 'LWT', 'RACE', 'SMOKE', 'PTL', 'HT', 'UI', 'FTV']
+cols_of_interest = ['AGE', 'LWT', 'RACE', 'SMOKE', 'PTL', 'HT', 'UI']
 x_vals = np.array([[x[ix] for ix, feature in enumerate(birth_header) if feature in cols_of_interest] for x in birth_data])
 
 
@@ -115,7 +113,7 @@ def init_bias(shape, st_dev):
     
     
 # Create Placeholders
-x_data = tf.placeholder(shape=[None, 8], dtype=tf.float32)
+x_data = tf.placeholder(shape=[None, 7], dtype=tf.float32)
 y_target = tf.placeholder(shape=[None, 1], dtype=tf.float32)
 
 
@@ -125,18 +123,18 @@ def fully_connected(input_layer, weights, biases):
     return(tf.nn.relu(layer))
 
 
-#--------Create the first layer (50 hidden nodes)--------
-weight_1 = init_weight(shape=[8, 25], st_dev=10.0)
+#--------Create the first layer (50 hidden nodes)-------- 但我看只有 25 個
+weight_1 = init_weight(shape=[7, 25], st_dev=10.0)
 bias_1 = init_bias(shape=[25], st_dev=10.0)
 layer_1 = fully_connected(x_data, weight_1, bias_1)
 
-#--------Create second layer (25 hidden nodes)--------
+#--------Create second layer (25 hidden nodes)-------- 但我看只有 10 個
 weight_2 = init_weight(shape=[25, 10], st_dev=10.0)
 bias_2 = init_bias(shape=[10], st_dev=10.0)
 layer_2 = fully_connected(layer_1, weight_2, bias_2)
 
 
-#--------Create third layer (5 hidden nodes)--------
+#--------Create third layer (5 hidden nodes)-------- 但我看只有 3 個
 weight_3 = init_weight(shape=[10, 3], st_dev=10.0)
 bias_3 = init_bias(shape=[3], st_dev=10.0)
 layer_3 = fully_connected(layer_2, weight_3, bias_3)
@@ -177,6 +175,7 @@ for i in range(200):
 
 
 # Plot loss (MSE) over time
+plt.figure()
 plt.plot(loss_vec, 'k-', label='Train Loss')
 plt.plot(test_loss, 'r--', label='Test Loss')
 plt.title('Loss (MSE) per Generation')

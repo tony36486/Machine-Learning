@@ -94,6 +94,7 @@ for i in range(500):
 
 
 # Plot loss (MSE) over time
+plt.figure()
 plt.plot(loss_vec, 'k-', label='Train Loss')
 plt.plot(test_loss, 'r--', label='Test Loss')
 plt.title('Loss (MSE) per Generation')

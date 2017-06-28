@@ -174,6 +174,7 @@ for i in range(10000):
                 
                 
 # Print loss
+plt.figure()
 plt.plot(loss_vec, 'k-', label='Loss')
 plt.title('Loss (MSE) per Generation')
 plt.xlabel('Generation')

@@ -25,11 +25,12 @@ birth_weight_file = 'birth_weight.csv'
 
 # download data and create data file if file does not exist in current directory
 if not os.path.exists(birth_weight_file):
-    birthdata_url = 'https://www.umass.edu/statdata/statdata/data/lowbwt.dat'
+    birthdata_url = 'https://github.com/nfmcclure/tensorflow_cookbook/raw/master/01_Introduction/07_Working_with_Data_Sources/birthweight_data/birthweight.dat'
     birth_file = requests.get(birthdata_url)
     birth_data = birth_file.text.split('\r\n')[5:]
     #birth_header = [x for x in birth_data[0].split(' ') if len(x)>=1]
     birth_data = [lr for lr in [row.split() for row in birth_data] if len(lr) > 1]
+"""
     with open(birth_weight_file, "w") as f:
         writer = csv.writer(f)
         writer.writerows(birth_data)
@@ -42,13 +43,14 @@ with open(birth_weight_file, newline='') as csvfile:
      birth_header = next(csv_reader)
      for row in csv_reader:
          birth_data.append(row)
+"""
 
 birth_data = [[float(x) for x in row] for row in birth_data]
 
 # Pull out target variable
-y_vals = np.array([x[1] for x in birth_data])
+y_vals = np.array([x[0] for x in birth_data])
 # Pull out predictor variables (not id, not target, and not birthweight)
-x_vals = np.array([x[2:9] for x in birth_data])
+x_vals = np.array([x[1:9] for x in birth_data])
 
 # set for reproducible results
 seed = 99
@@ -80,7 +82,7 @@ x_vals_test = np.nan_to_num(normalize_cols(x_vals_test))
 sess = tf.Session()
 
 # Initialize placeholders
-x_data = tf.placeholder(shape=[None, 7], dtype=tf.float32)
+x_data = tf.placeholder(shape=[None, 8], dtype=tf.float32)
 y_target = tf.placeholder(shape=[None, 1], dtype=tf.float32)
 
 
@@ -100,17 +102,17 @@ def logistic(input_layer, multiplication_weight, bias_weight, activation = True)
         return(linear_layer)
 
 
-# First logistic layer (7 inputs to 7 hidden nodes)
-A1 = init_variable(shape=[7,14])
+# First logistic layer (7 inputs to 7 hidden nodes) * i think (8 inputs to 14 hidden nodes)
+A1 = init_variable(shape=[8,14])
 b1 = init_variable(shape=[14])
 logistic_layer1 = logistic(x_data, A1, b1)
 
-# Second logistic layer (7 hidden inputs to 5 hidden nodes)
+# Second logistic layer (7 hidden inputs to 5 hidden nodes) * i think (14 hidden nodes to 5 hidden nodes)
 A2 = init_variable(shape=[14,5])
 b2 = init_variable(shape=[5])
 logistic_layer2 = logistic(logistic_layer1, A2, b2)
 
-# Final output layer (5 hidden nodes to 1 output)
+# Final output layer (5 hidden nodes to 1 output)  * i think (5 hidden nodes to 1 output)
 A3 = init_variable(shape=[5,1])
 b3 = init_variable(shape=[1])
 final_output = logistic(logistic_layer2, A3, b3, activation=False)
@@ -151,6 +153,7 @@ for i in range(1500):
         print('Loss = ' + str(temp_loss))
         
 # Plot loss over time
+plt.figure()
 plt.plot(loss_vec, 'k-')
 plt.title('Cross Entropy Loss per Generation')
 plt.xlabel('Generation')
@@ -158,6 +161,7 @@ plt.ylabel('Cross Entropy Loss')
 plt.show()
 
 # Plot train and test accuracy
+plt.figure()
 plt.plot(train_acc, 'k-', label='Train Set Accuracy')
 plt.plot(test_acc, 'r--', label='Test Set Accuracy')
 plt.title('Train and Test Accuracy')
