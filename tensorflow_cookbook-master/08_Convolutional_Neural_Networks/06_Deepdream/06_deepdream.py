@@ -30,7 +30,7 @@ ops.reset_default_graph()
 graph = tf.Graph()
 sess = tf.InteractiveSession(graph=graph)
 
-os.chdir('/home/nick/Documents/tensorflow/inception-v1-model/')
+#os.chdir('/home/nick/Documents/tensorflow/inception-v1-model/')
 
 # Model location
 model_fn = 'tensorflow_inception_graph.pb'
@@ -61,7 +61,7 @@ print('Total number of feature channels:', sum(feature_nums))
 # Picking some internal layer. Note that we use outputs before applying the ReLU nonlinearity
 # to have non-zero gradients for features with negative initial activations.
 layer = 'mixed4d_3x3_bottleneck_pre_relu'
-channel = 30 # picking some feature channel to visualize
+channel = 100 # picking some feature channel to visualize
 
 # start with a gray image with a little noise
 img_noise = np.random.uniform(size=(224,224,3)) + 100.0
@@ -181,7 +181,7 @@ if __name__=="__main__":
     resize = tffunc(np.float32, np.int32)(resize)
     
     # Open image
-    img0 = PIL.Image.open('book_cover.jpg')
+    img0 = PIL.Image.open('../images/test_food.jpg')
     img0 = np.float32(img0)
     # Show Original Image
     showarray(img0/255.0)

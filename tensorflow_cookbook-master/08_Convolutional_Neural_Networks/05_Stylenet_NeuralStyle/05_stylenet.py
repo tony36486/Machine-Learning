@@ -12,9 +12,22 @@
 
 import scipy.io
 import scipy.misc
+import os
+import sys
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import ops
+
+def file_debug_tool(image_name):
+    ## check reid output txt exist
+    if os.path.isfile(image_name):
+        print(image_name+ "\n" +"image exist")
+    else:
+        print("image not exist")
+        ## end the program
+        sys.exit()
+        
+# Reset graph        
 ops.reset_default_graph()
 
 # Start a graph session
@@ -23,7 +36,9 @@ sess = tf.Session()
 
 # Image Files
 original_image_file = '../images/book_cover.jpg'
+file_debug_tool(original_image_file)
 style_image_file = '../images/starry_night.jpg'
+file_debug_tool(style_image_file)
 
 # Saved VGG Network path under the current project dir.
 vgg_path = 'imagenet-vgg-verydeep-19.mat'
@@ -31,11 +46,13 @@ vgg_path = 'imagenet-vgg-verydeep-19.mat'
 
 # Default Arguments
 original_image_weight = 5.0
-style_image_weight = 200.0
-regularization_weight = 50.0
-learning_rate = 0.1
-generations = 10000
-output_generations = 500
+style_image_weight = 500.0
+regularization_weight = 100
+learning_rate = 10.000
+generations = 5000
+output_generations = 250
+beta1 = 0.9
+beta2 = 0.999
 
 # Read in images
 original_image = scipy.misc.imread(original_image_file)
@@ -79,13 +96,13 @@ def vgg_network(network_weights, init_image):
     image = init_image
 
     for i, layer in enumerate(vgg_layers):
-        if layer[1] == 'c':
+        if layer[0] == 'c':
             weights, bias = network_weights[i][0][0][0][0]
             weights = np.transpose(weights, (1, 0, 2, 3))
             bias = bias.reshape(-1)
             conv_layer = tf.nn.conv2d(image, tf.constant(weights), (1, 1, 1, 1), 'SAME')
             image = tf.nn.bias_add(conv_layer, bias)
-        elif layer[1] == 'r':
+        elif layer[0] == 'r':
             image = tf.nn.relu(image)
         else:
             image = tf.nn.max_pool(image, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME')
@@ -127,7 +144,7 @@ for layer in style_layers:
     style_features[layer] = style_gram_matrix
 
 # Make Combined Image
-initial = tf.random_normal(shape) * 0.05
+initial = tf.random_normal(shape) * 0.256
 image = tf.Variable(initial)
 vgg_net = vgg_network(network_weights, image)
 
@@ -160,19 +177,46 @@ total_variation_loss = first_term * (second_term + third_term)
 # Combined Loss
 loss = original_loss + style_loss + total_variation_loss
 
+# extract the style layer information
+style_layer = 'relu2_1'
+layer = vgg_net[style_layer]
+feats, height, width, channels = [x.value for x in layer.get_shape()]
+size = height * width * channels
+features = tf.reshape(layer, (-1, channels))
+style_gram_matrix = tf.matmul(tf.transpose(features), features) / size
+style_expected = style_features[style_layer]
+style_losses.append(2 * tf.nn.l2_loss(style_gram_matrix - style_expected) / style_expected.size)
+
 # Declare Optimization Algorithm
-optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+optimizer = tf.train.AdamOptimizer(learning_rate,beta1,beta2)
 train_step = optimizer.minimize(loss)
 
 # Initialize Variables and start Training
 sess.run(tf.global_variables_initializer())
+
+for style_layer in style_layers:
+    print('-------Layer: {} -------'.format(style_layer))
+    layer = vgg_net[style_layer]
+    print(sess.run(layer))
+    feats, height, width, channels = [x.value for x in layer.get_shape()]
+    size = height * width * channels
+    print(size)
+    print('')
+    
+# Declare Optimization Algorithm
+optimizer = tf.train.AdamOptimizer(learning_rate,beta1,beta2)
+train_step = optimizer.minimize(loss)
+
+# Initialize Variables and start Training
+sess.run(tf.global_variables_initializer())
+    
 for i in range(generations):
     
     sess.run(train_step)
 
     # Print update and save temporary output
     if (i+1) % output_generations == 0:
-        print('Generation {} out of {}'.format(i + 1, generations))
+        print('Generation {} out of {}, loss: {}'.format(i + 1, generations,sess.run(loss)))
         image_eval = sess.run(image)
         best_image_add_mean = image_eval.reshape(shape[1:]) + normalization_mean
         output_file = 'temp_output_{}.jpg'.format(i)

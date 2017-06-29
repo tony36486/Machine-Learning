@@ -10,6 +10,9 @@
 *.xls
 *.xlsx
 *.gz
+*.zip
+*.pb
+*.mat
 .gitignore~
 .Rhistory
 Readme.md~

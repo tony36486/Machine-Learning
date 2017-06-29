@@ -291,6 +291,7 @@ eval_indices = range(0, generations, eval_every)
 output_indices = range(0, generations, output_every)
 
 # Plot loss over time
+plt.figure()
 plt.plot(output_indices, train_loss, 'k-')
 plt.title('Softmax Loss per Generation')
 plt.xlabel('Generation')
@@ -298,6 +299,7 @@ plt.ylabel('Softmax Loss')
 plt.show()
 
 # Plot accuracy over time
+plt.figure()
 plt.plot(eval_indices, test_accuracy, 'k-')
 plt.title('Test Accuracy')
 plt.xlabel('Generation')
